@@ -72,10 +72,7 @@ Este patrón define una dependencia uno-a-muchos entre objetos, de manera que cu
 
 ## 5. Evidencias de implemetacion y ejecucion: 
 
-![alt text](image.png)  
-![alt text](image-1.png)  
-![alt text](image-2.png)  
-![alt text](image-3.png)
+![alt text](docs/imagenes/image.png)
 
 ## 6 y 7. Implementacion de pruebas unitarias y cobertura con Jacoco:
 ![alt text](docs/imagenes/jacoco.png)
