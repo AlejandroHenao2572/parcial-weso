@@ -87,7 +87,7 @@
 							<excludes>
 								<exclude>/configurators/</exclude>
 								<exclude>**/Application.class</exclude>
-								<exclude>**/PaymentSystemDemo.class</exclude>
+								<exclude>**/EciPayments.class</exclude>
 							</excludes>
 						</configuration>
 					</execution>

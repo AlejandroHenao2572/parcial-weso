@@ -1,51 +1,72 @@
 package eci.edu.dosw.parcial.util.payment;
 
+import eci.edu.dosw.parcial.util.PagoPayPal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterEach;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class PayPalPaymentTest {
 
-    private PayPalPayment payPalPayment;
+    private PagoPayPal pagoPayPal;
+    private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
+    private final PrintStream standardOut = System.out;
 
     @BeforeEach
     void setUp() {
-        payPalPayment = new PayPalPayment();
+        pagoPayPal = new PagoPayPal();
+        System.setOut(new PrintStream(outputStreamCaptor));
+    }
+
+    @AfterEach
+    void tearDown() {
+        System.setOut(standardOut);
     }
 
     @Test
-    void testProcessPaymentPositiveAmount() {
-        // Given
-        double amount = 75.25;
+    void testPagarMontoPositivo() {
+        double monto = 200.75;
         
-        // When
-        boolean result = payPalPayment.processPayment(amount);
+        pagoPayPal.pagar(monto);
         
-        // Then
-        assertTrue(result);
+        String output = outputStreamCaptor.toString().trim();
+        assertEquals("Pago con PayPal: $" + monto, output, "Debe mostrar el mensaje correcto de pago con PayPal");
     }
 
     @Test
-    void testProcessPaymentZeroAmount() {
-        // Given
-        double amount = 0.0;
+    void testPagarMontoCero() {
+        double monto = 0.0;
         
-        // When
-        boolean result = payPalPayment.processPayment(amount);
+        pagoPayPal.pagar(monto);
         
-        // Then
-        assertTrue(result);
+        String output = outputStreamCaptor.toString().trim();
+        assertEquals("Pago con PayPal: $" + monto, output, "Debe procesar pago con monto cero");
     }
 
     @Test
-    void testProcessPaymentLargeAmount() {
-        // Given
-        double amount = 999999.99;
+    void testPagarMontoDecimal() {
+        double monto = 149.99;
         
-        // When
-        boolean result = payPalPayment.processPayment(amount);
+        pagoPayPal.pagar(monto);
         
-        // Then
-        assertTrue(result);
+        String output = outputStreamCaptor.toString().trim();
+        assertEquals("Pago con PayPal: $" + monto, output, "Debe manejar correctamente montos decimales");
+    }
+
+    @Test
+    void testMultiplesPagos() {
+        double monto1 = 25.0;
+        double monto2 = 87.50;
+        
+        pagoPayPal.pagar(monto1);
+        pagoPayPal.pagar(monto2);
+        
+        String output = outputStreamCaptor.toString();
+        assertTrue(output.contains("Pago con PayPal: $" + monto1), "Debe contener el primer pago");
+        assertTrue(output.contains("Pago con PayPal: $" + monto2), "Debe contener el segundo pago");
     }
 }

@@ -1,37 +1,63 @@
 package eci.edu.dosw.parcial.util.observer;
 
+import eci.edu.dosw.parcial.util.FacturacionObs;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterEach;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class BillingModuleTest {
 
-    private BillingModule billingModule;
-    private PaymentData paymentData;
+    private FacturacionObs facturacionObs;
+    private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
+    private final PrintStream standardOut = System.out;
 
     @BeforeEach
     void setUp() {
-        billingModule = new BillingModule();
-        paymentData = new PaymentData(100.0, "creditcard", "TXN-123");
+        facturacionObs = new FacturacionObs();
+        System.setOut(new PrintStream(outputStreamCaptor));
+    }
+
+    @AfterEach
+    void tearDown() {
+        System.setOut(standardOut);
     }
 
     @Test
-    void testOnPaymentProcessed() {
-        assertDoesNotThrow(() -> {
-            billingModule.onPaymentProcessed(paymentData);
-        });
+    void testActualizar() {
+        facturacionObs.actualizar();
+        
+        String output = outputStreamCaptor.toString().trim();
+        assertEquals("Factura generada.", output, "Debe mostrar el mensaje correcto de facturacion");
     }
 
     @Test
-    void testImplementsPaymentObserver() {
-        assertInstanceOf(PaymentObserver.class, billingModule);
+    void testMultiplesActualizaciones() {
+        facturacionObs.actualizar();
+        facturacionObs.actualizar();
+        
+        String output = outputStreamCaptor.toString();
+        int count = output.split("Factura generada.", -1).length - 1;
+        assertEquals(2, count, "Debe mostrar el mensaje 2 veces");
     }
 
     @Test
-    void testOnPaymentProcessedWithDifferentData() {
-        PaymentData data = new PaymentData(250.50, "paypal", "ABC-123");
-        assertDoesNotThrow(() -> {
-            billingModule.onPaymentProcessed(data);
-        });
+    void testConsistenciaComportamiento() {
+        FacturacionObs otraFacturacion = new FacturacionObs();
+        
+        facturacionObs.actualizar();
+        String output1 = outputStreamCaptor.toString().trim();
+        
+        // Reset captor
+        outputStreamCaptor.reset();
+        
+        otraFacturacion.actualizar();
+        String output2 = outputStreamCaptor.toString().trim();
+        
+        assertEquals(output1, output2, "Diferentes instancias deben comportarse igual");
     }
 }
